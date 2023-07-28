@@ -139,7 +139,7 @@ dt %>%
     file_name <- glue::glue("report/{.x$country}/{as.character(.x$day)}.zip")
     if(fs::file_exists(file_name)) return()
     
-    c::cli_alert_info(glue::glue("{.x$country} - {.x$day}"))
+    cli::cli_alert_info(glue::glue("{.x$country} - {.x$day}"))
     
     path_dir <- fs::path_dir(file_name)
     if(!fs::dir_exists(path_dir)) fs::dir_create(path_dir)
