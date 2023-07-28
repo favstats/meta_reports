@@ -50,6 +50,7 @@ jobs:
           install.packages('xml2')
           install.packages('rvest')
           install.packages('reticulate')
+          install.packages('purrr')
           remotes::install_github("benjaminguinaudeau/playwrightr", force = T)
         shell: Rscript {0}
       - name: "Script - Run"

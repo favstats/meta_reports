@@ -22,7 +22,7 @@ walk_progress <- function(.x, .f, ...) {
 
 
 # install.packages("pacman")
-pacman::p_load(reticulate, dplyr, stringr, lubridate, purrr, glue, rvest, cli, digest, glue, rvest)
+pacman::p_load(reticulate, dplyr, stringr, lubridate, purrr, glue, rvest, cli, digest)
 
 cntry <- "ES"
 
