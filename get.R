@@ -61,9 +61,8 @@ execute_script <- function (page_df, script) {
   playwrightr:::py_run(glue("d = {{page_df$page_id}}.evaluate('{{script}}')"))
 }
 
-page_df %>% 
-  goto("https://www.facebook.com/ads/library/report") %>% 
-  screenshot("/data/res/facebook_add_reports/test.png")
+page_df %>%
+  goto("https://www.facebook.com/ads/library/report") 
 
 Sys.sleep(2)
 
