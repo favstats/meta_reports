@@ -49,6 +49,7 @@ jobs:
           install.packages('tibble')
           install.packages('xml2')
           install.packages('rvest')
+          install.packages('reticulate')
           remotes::install_github("benjaminguinaudeau/playwrightr", force = T)
         shell: Rscript {0}
       - name: "Script - Run"
