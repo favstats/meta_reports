@@ -22,8 +22,9 @@ walk_progress <- function(.x, .f, ...) {
 pacman::p_load(reticulate, dplyr, stringr, lubridate, purrr, glue, rvest, cli, digest)
 
 cntry <- "ES"
-
-pw_init(use_xvfb = T)
+py_install("xvfbwrapper", pip = T)
+# py_install("fcntl", pip = T)
+pw_init(use_xvfb = F)
 
 # Launch the browser
 
