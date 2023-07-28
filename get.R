@@ -26,7 +26,7 @@ py_install("xvfbwrapper", pip = T)
 py_install("playwright", pip = T)
 
 # py_install("fcntl", pip = T)
-pw_init(use_xvfb = F)
+pw_init(use_xvfb = T)
 # Launch the browser
 
 browser_df <- browser_launch(headless = F, browser = "firefox", 
