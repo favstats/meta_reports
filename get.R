@@ -1,8 +1,5 @@
-# Hier ist die eltzte Version: 
-# library(reticulate)
-# # library(tidyverse)
-# library(glue)
-# library(rvest)
+library(playwrightr)
+
 options(python_init = TRUE)
 
 walk_progress <- function(.x, .f, ...) {
@@ -26,8 +23,6 @@ pacman::p_load(reticulate, dplyr, stringr, lubridate, purrr, glue, rvest, cli, d
 
 cntry <- "ES"
 
-library(playwrightr)
-library(dplyr)
 pw_init(use_xvfb = T)
 
 # Launch the browser
