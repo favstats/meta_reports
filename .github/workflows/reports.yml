@@ -51,7 +51,7 @@ jobs:
           install.packages('rvest')
           install.packages('reticulate')
           install.packages('purrr')
-          pacman::p_load(reticulate, tidyr, dplyr, stringr, lubridate, purrr, glue, rvest, cli, digest)
+          pacman::p_load(reticulate, tidyr, countrycode, dplyr, stringr, lubridate, purrr, glue, rvest, cli, digest)
           remotes::install_github("benjaminguinaudeau/playwrightr", force = T)
         shell: Rscript {0}
       - name: "Script - Run"
