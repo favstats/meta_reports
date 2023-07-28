@@ -127,7 +127,7 @@ countries <- tibble::tibble(country = countrycode::codelist$iso2c) %>%
 #   glimpse
 
 # days <- tibble::tibble(day = lubridate::as_date(seq.int(lubridate::dmy("01-07-2019"), lubridate::today(), by = 30))) %>%
-days <- tibble::tibble(day = lubridate::as_date(seq.int(lubridate::dmy("01-07-2023"), lubridate::today(), by = 1))) #%>%
+days <- tibble::tibble(day = lubridate::as_date(seq.int(lubridate::dmy("15-07-2023"), lubridate::today(), by = 1))) #%>%
 # head(-7)
 
 dt <- expand_grid(countries, days) %>%
