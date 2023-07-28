@@ -19,9 +19,9 @@ walk_progress <- function(.x, .f, ...) {
 
 
 # install.packages("pacman")
-pacman::p_load(reticulate, progress, fs, tidyr, countrycode, dplyr, stringr, lubridate, purrr, glue, rvest, cli, digest)
+pacman::p_load(reticulate, vroom, progress, janitor, fs, tidyr, countrycode, dplyr, stringr, lubridate, purrr, glue, rvest, cli, digest)
 
-cntry <- "ES"
+# cntry <- "ES"
 py_install("xvfbwrapper", pip = T)
 py_install("playwright", pip = T)
 
@@ -122,17 +122,17 @@ countries <- tibble::tibble(country = countrycode::codelist$iso2c) %>%
 #   filter(!is.na(country)) %>%
 #   glimpse
 
-# days <- tibble::tibble(day = lubridate::as_date(seq.int(lubridate::dmy("01-07-2019"), lubridate::today(), by = 30))) %>%
-days <- tibble::tibble(day = lubridate::as_date(seq.int(lubridate::dmy("15-07-2023"), lubridate::today(), by = 1))) #%>%
-# head(-7)
+days <- tibble::tibble(day = lubridate::as_date(seq.int(lubridate::dmy("01-07-2019"), lubridate::today(), by = 1))) %>%
+# days <- tibble::tibble(day = lubridate::as_date(seq.int(lubridate::dmy("15-07-2023"), lubridate::today(), by = 1))) #%>%
+  head(-2)
 
 dt <- expand_grid(countries, days) %>%
   glimpse
 
 dt %>%
   # arrange(day, country != "RU") %>%
-  filter(country == cntry) %>% 
-  arrange(country, day) %>% 
+  # filter(country == cntry) %>% 
+  arrange(desc(day), country) %>% 
   split(1:nrow(.)) %>% #bashR::simule_map(1)
   walk_progress(~{
     
@@ -164,23 +164,15 @@ dt %>%
       glimpse
     
     if(is.na(download_url)){
-      write(list(), file_name)
+      if(!(.x$day %in% lubridate::as_date((lubridate::today()-lubridate::days(10)):lubridate::today()))){
+        write(list(), file_name)
+      }
     } else if(str_detect(download_url, "facebook.com/help/contact/")) {
-      # cli::cli_alert_danger("Blocked")
-      # system("taskkill /IM Pulse.exe /F")
+      cli::cli_alert_danger("Blocked")
       Sys.sleep(10)
-      # beepr::beep(10)
-      # system('powershell "Disable-NetAdapter -Name \'WiFi\' -Confirm:$false"')
-      # system('powershell "Enable-NetAdapter -Name \'WiFi\' -Confirm:$false"')
-      # system('cmd /c "C:/Program Files (x86)/Common Files/Pulse Secure/JamUI/Pulse.exe"', wait = F)
-      # Sys.sleep(60*5)
-      # rstudioapi::jobRunScript("get_em.R")
       return("Blocked")
     } else {
-      # req <- httr::GET(download_url)
       download.file(download_url, file_name, quiet = T, mode = "wb")
-      # cli::cli_alert_success(object.size(req$content))
-      # writeBin(req$content, file_name)
     }
     
     
@@ -191,7 +183,44 @@ dt %>%
 
 # dir("report/ES")
 # 
-# the_dat <- dir("report/ES", full.names = T) %>% 
-#   # keep(~str_detect(.x, "advert")) %>% 
-#   # .[1:2] %>% 
-#   walk_progress(unzip)
+
+dates_already_present <- dir("extracted", full.names = T, recursive = T) %>% 
+  str_split("_") %>% map_chr(
+    ~ paste0(
+      str_split(.x, "_") %>% unlist %>% .[3],
+      "/",
+      str_split(.x, "_") %>% unlist %>% .[2] 
+    )
+  ) %>%
+  unique() %>%
+  discard(~str_detect(.x, "NA/NA")) %>% 
+  na.omit() %>% as.character()
+
+dir("report", full.names = T, recursive = T) %>%
+  discard(~magrittr::is_in(.x, paste0("report/",dates_already_present, ".zip"))) %>% 
+  # keep(~str_detect(.x, "advert")) %>%
+  # .[1:2] %>%
+  walk_progress(~{unzip(.x, exdir = "extracted")})
+
+
+the_dat <-  dir("extracted", full.names = T, recursive = T) %>%
+  keep(~str_detect(.x, "advert")) %>%
+  map_dfr(~{
+    
+    cntry_str <- str_split(.x, "_") %>% unlist %>% .[3]
+    tframe <- str_split(.x, "_") %>% unlist %>% .[4]
+    
+    vroom::vroom(.x, show_col_types = F) %>% 
+      janitor::clean_names()} %>% 
+        mutate(date = str_extract(.x, "\\d{4}-\\d{2}-\\d{2}")) %>% 
+        mutate_all(as.character) %>% 
+        mutate(path = .x) %>% 
+        mutate(tf = tframe) %>% 
+        mutate(cntry = cntry_str))
+
+saveRDS("data/daily.rds")
+
+
+
+
+
