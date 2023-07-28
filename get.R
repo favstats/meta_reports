@@ -23,9 +23,10 @@ pacman::p_load(reticulate, dplyr, stringr, lubridate, purrr, glue, rvest, cli, d
 
 cntry <- "ES"
 py_install("xvfbwrapper", pip = T)
+py_install("playwright", pip = T)
+
 # py_install("fcntl", pip = T)
 pw_init(use_xvfb = F)
-
 # Launch the browser
 
 browser_df <- browser_launch(headless = F, browser = "firefox", 
