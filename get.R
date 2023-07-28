@@ -19,7 +19,7 @@ walk_progress <- function(.x, .f, ...) {
 
 
 # install.packages("pacman")
-pacman::p_load(reticulate, progress, tidyr, countrycode, dplyr, stringr, lubridate, purrr, glue, rvest, cli, digest)
+pacman::p_load(reticulate, progress, fs, tidyr, countrycode, dplyr, stringr, lubridate, purrr, glue, rvest, cli, digest)
 
 cntry <- "ES"
 py_install("xvfbwrapper", pip = T)
