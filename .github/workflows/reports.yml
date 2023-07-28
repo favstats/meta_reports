@@ -47,6 +47,7 @@ jobs:
           install.packages('remotes')
           install.packages('dplyr')
           install.packages('tibble')
+          install.packages('xml2')
           remotes::install_github("benjaminguinaudeau/playwrightr", force = T)
         shell: Rscript {0}
       - name: "Script - Run"
