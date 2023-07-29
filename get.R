@@ -376,8 +376,8 @@ try({
         mutate(cntry = cntry_str)
     )
   
-  # saveRDS(the_dat, "data/daily.rds")
+  saveRDS(the_dat, "data/daily.rds")
   
   
-  vroom::vroom_write(the_dat, "data/daily.csv")
+  # vroom::vroom_write(the_dat, "data/daily.csv")
  }) 
