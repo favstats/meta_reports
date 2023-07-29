@@ -263,132 +263,139 @@ daysies <-
 dt <- expand_grid(countries, daysies) %>%
   glimpse
 
-dt %>%
-  # arrange(day, country != "RU") %>%
-  # filter(country == cntry) %>%
-  arrange(desc(day), country) %>%
-  split(1:nrow(.)) %>% #bashR::simule_map(1)
-  walk_progress( ~ {
-    file_name <-
-      glue::glue("report/{.x$country}/{as.character(.x$day)}.zip")
-    if (fs::file_exists(file_name))
-      return()
-    
-    cli::cli_alert_info(glue::glue("{.x$country} - {.x$day}"))
-    
-    path_dir <- fs::path_dir(file_name)
-    if (!fs::dir_exists(path_dir))
-      fs::dir_create(path_dir)
-    
-    # .x <- list(day = "2021-12-17", country = "NL")
-    # .x <- list(day = "2021-12-16", country = "NL")
-    # .x <- list(day = "2021-01-17", country = "NL")
-    # time_preset <- "lifelong"
-    time_preset <- "yesterday"
-    # time_preset <- "last_90_days"
-    # time_preset <- "last_365_days"
-    
-    js_code <-
-      paste0(
-        'fetch("https://www.facebook.com/ads/library/report/v2/download/?report_ds=',
-        as.character(.x$day),
-        '&country=',
-        .x$country,
-        '&time_preset=',
-        time_preset,
-        '", {"headers": {"accept": "*/*", "content-type": "application/x-www-form-urlencoded"}, "body": "',
-        data_string,
-        '", "method": "POST", "mode": "cors", "credentials": "include" }).then(resp => resp.text()).then(data => console.log(data));'
-      )
-    
-    page_df %>% execute_script(js_code)
-    Sys.sleep(.1)
-    
-    download_url <- readLines(tmp_download_link, warn = F) %>%
-      str_extract("\"https.*?\"") %>%
-      str_remove_all("(^\")|(\"$)") %>%
-      str_remove_all("\\\\") %>%
-      glimpse
-    
-    if (is.na(download_url)) {
-      if (!(.x$day %in% lubridate::as_date((lubridate::today() - lubridate::days(10)):lubridate::today()
-      ))) {
-        write(list(), file_name)
-      }
-    } else if (str_detect(download_url, "facebook.com/help/contact/")) {
-      cli::cli_alert_danger("Blocked")
-      Sys.sleep(10)
-      return("Blocked")
-    } else {
-      download.file(download_url,
-                    file_name,
-                    quiet = T,
-                    mode = "wb")
-    }
-    
-    
-    
-    Sys.sleep(runif(1, 0, .3))
-  })
-
-
-# dir("report/ES")
-#
-
-dates_already_present <-
-  dir("extracted", full.names = T, recursive = T) %>%
-  str_split("_") %>% map_chr(~ paste0(
-    str_split(.x, "_") %>% unlist %>% .[3],
-    "/",
-    str_split(.x, "_") %>% unlist %>% .[2]
-  )) %>%
-  unique() %>%
-  discard( ~ str_detect(.x, "NA/NA")) %>%
-  na.omit() %>% as.character()
-
-dir("report", full.names = T, recursive = T) %>%
-  discard( ~ magrittr::is_in(.x, paste0("report/", dates_already_present, ".zip"))) %>%
-  # keep(~str_detect(.x, "advert")) %>%
-  # .[1:2] %>%
-  walk_progress( ~ {
-    unzip(.x, exdir = "extracted")
-  })
-
-
-the_dat <-  dir("extracted", full.names = T, recursive = T) %>%
-  keep( ~ str_detect(.x, "advert")) %>%
-  map_dfr(
-    ~ {
-      cntry_str <- str_split(.x, "_") %>% unlist %>% .[3]
-      tframe <- str_split(.x, "_") %>% unlist %>% .[4]
+try({
+  
+  
+  dt %>%
+    # arrange(day, country != "RU") %>%
+    # filter(country == cntry) %>%
+    arrange(desc(day), country) %>%
+    split(1:nrow(.)) %>% #bashR::simule_map(1)
+    walk_progress( ~ {
+      file_name <-
+        glue::glue("report/{.x$country}/{as.character(.x$day)}.zip")
+      if (fs::file_exists(file_name))
+        return()
       
-      vroom::vroom(.x, show_col_types = F) %>%
-        janitor::clean_names()
-    } %>%
-      mutate(date = str_extract(.x, "\\d{4}-\\d{2}-\\d{2}")) %>%
-      mutate_all(as.character) %>%
-      mutate(path = .x) %>%
-      mutate(tf = tframe) %>%
-      mutate(cntry = cntry_str)
-  )
-
-# saveRDS(the_dat, "data/daily.rds")
-
-
-vroom::vroom_write(the_dat, "data/daily.csv")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+      cli::cli_alert_info(glue::glue("{.x$country} - {.x$day}"))
+      
+      path_dir <- fs::path_dir(file_name)
+      if (!fs::dir_exists(path_dir))
+        fs::dir_create(path_dir)
+      
+      # .x <- list(day = "2021-12-17", country = "NL")
+      # .x <- list(day = "2021-12-16", country = "NL")
+      # .x <- list(day = "2021-01-17", country = "NL")
+      # time_preset <- "lifelong"
+      time_preset <- "yesterday"
+      # time_preset <- "last_90_days"
+      # time_preset <- "last_365_days"
+      
+      js_code <-
+        paste0(
+          'fetch("https://www.facebook.com/ads/library/report/v2/download/?report_ds=',
+          as.character(.x$day),
+          '&country=',
+          .x$country,
+          '&time_preset=',
+          time_preset,
+          '", {"headers": {"accept": "*/*", "content-type": "application/x-www-form-urlencoded"}, "body": "',
+          data_string,
+          '", "method": "POST", "mode": "cors", "credentials": "include" }).then(resp => resp.text()).then(data => console.log(data));'
+        )
+      
+      page_df %>% execute_script(js_code)
+      Sys.sleep(.1)
+      
+      download_url <- readLines(tmp_download_link, warn = F) %>%
+        str_extract("\"https.*?\"") %>%
+        str_remove_all("(^\")|(\"$)") %>%
+        str_remove_all("\\\\") %>%
+        glimpse
+      
+      if (is.na(download_url)) {
+        if (!(.x$day %in% lubridate::as_date((lubridate::today() - lubridate::days(10)):lubridate::today()
+        ))) {
+          write(list(), file_name)
+        }
+      } else if (str_detect(download_url, "facebook.com/help/contact/")) {
+        cli::cli_alert_danger("Blocked")
+        Sys.sleep(10)
+        stop("Blocked")
+      } else {
+        download.file(download_url,
+                      file_name,
+                      quiet = T,
+                      mode = "wb")
+      }
+      
+      
+      
+      Sys.sleep(runif(1, 0, .3))
+    })
+  
+  
+  # dir("report/ES")
+  #
+  
+  dates_already_present <-
+    dir("extracted", full.names = T, recursive = T) %>%
+    str_split("_") %>% map_chr(~ paste0(
+      str_split(.x, "_") %>% unlist %>% .[3],
+      "/",
+      str_split(.x, "_") %>% unlist %>% .[2]
+    )) %>%
+    unique() %>%
+    discard( ~ str_detect(.x, "NA/NA")) %>%
+    na.omit() %>% as.character()
+  
+  dir("report", full.names = T, recursive = T) %>%
+    discard( ~ magrittr::is_in(.x, paste0("report/", dates_already_present, ".zip"))) %>%
+    # keep(~str_detect(.x, "advert")) %>%
+    # .[1:2] %>%
+    walk_progress( ~ {
+      unzip(.x, exdir = "extracted")
+    })
+  
+  
+  the_dat <-  dir("extracted", full.names = T, recursive = T) %>%
+    keep( ~ str_detect(.x, "advert")) %>%
+    map_dfr(
+      ~ {
+        cntry_str <- str_split(.x, "_") %>% unlist %>% .[3]
+        tframe <- str_split(.x, "_") %>% unlist %>% .[4]
+        
+        vroom::vroom(.x, show_col_types = F) %>%
+          janitor::clean_names()
+      } %>%
+        mutate(date = str_extract(.x, "\\d{4}-\\d{2}-\\d{2}")) %>%
+        mutate_all(as.character) %>%
+        mutate(path = .x) %>%
+        mutate(tf = tframe) %>%
+        mutate(cntry = cntry_str)
+    )
+  
+  # saveRDS(the_dat, "data/daily.rds")
+  
+  
+  vroom::vroom_write(the_dat, "data/daily.csv")
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+})
