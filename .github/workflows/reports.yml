@@ -33,11 +33,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '18.x'  # Choose the appropriate Node.js version
+          node-version: '16.x'  # Choose the appropriate Node.js version
 
       - name: Install dependencies
         run: npm install playwright
-
+      - name: Add Playwright to PATH
+        run: echo 'export PATH="$PATH:./node_modules/.bin"' >> $GITHUB_ENV
       - name: Install Firefox dependencies
         run: sudo apt-get install -y firefox
 
