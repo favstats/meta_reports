@@ -33,12 +33,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14.x'  # Choose the appropriate Node.js version
+          node-version: '18.x'  # Choose the appropriate Node.js version
 
       - name: Install dependencies
         run: npm install playwright
-      - name: Add Playwright to PATH
-        run: echo 'export PATH="$PATH:./node_modules/.bin"' >> $GITHUB_ENV
+
       - name: Install Firefox dependencies
         run: sudo apt-get install -y firefox
 
@@ -52,11 +51,9 @@ jobs:
           install.packages('rvest')
           install.packages('reticulate')
           install.packages('purrr')
-          pacman::p_load(reticulate, fs, vroom, janitor, progress, tidyr, countrycode, dplyr, stringr, lubridate, purrr, glue, rvest, cli, digest)
+          pacman::p_load(reticulate, fs, progress, tidyr, countrycode, dplyr, stringr, lubridate, purrr, glue, rvest, cli, digest)
           remotes::install_github("benjaminguinaudeau/playwrightr", force = T)
         shell: Rscript {0}
-      - name: Clear Playwright cache
-        run: playwright install
       - name: "Script - Run"
         run: Rscript 'get.R' 7
       - name: "Commit"
