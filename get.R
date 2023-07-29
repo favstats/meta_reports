@@ -335,9 +335,10 @@ try({
     })
   
   
+}) 
   # dir("report/ES")
   #
-  
+ try({
   dates_already_present <-
     dir("extracted", full.names = T, recursive = T) %>%
     str_split("_") %>% map_chr(~ paste0(
@@ -379,23 +380,4 @@ try({
   
   
   vroom::vroom_write(the_dat, "data/daily.csv")
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-})
+ }) 

@@ -1,14 +1,14 @@
-name: "7 Timeframe"
+name: "Get Reports"
 on:
   schedule:
-    - cron: '0 1,2,13,14 * * *'
+    - cron: '*/25 * * * *'
   push:
     branches:
       - main
 
 jobs:
   update-data:
-    name: Update Dashboard
+    name: Update Reports
     runs-on: ubuntu-latest
     permissions:
       contents: write
