@@ -36,10 +36,9 @@ jobs:
           node-version: '18.x'  # Choose the appropriate Node.js version
 
       - name: Install dependencies
-        run: npm install playwright
-
-      - name: Install Firefox dependencies
-        run: sudo apt-get install -y firefox
+        run: npm ci
+      - name: Install playwright browsers
+        run: npx playwright install --with-deps
 
       - name: "Install Packages"
         run: |
