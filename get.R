@@ -349,13 +349,13 @@ try({
     unique() %>%
     discard( ~ str_detect(.x, "NA/NA")) %>%
     na.omit() %>% as.character()
-  
+
   dir("report", full.names = T, recursive = T) %>%
     discard( ~ magrittr::is_in(.x, paste0("report/", dates_already_present, ".zip"))) %>%
-    # keep(~str_detect(.x, "advert")) %>%
-    # .[1:2] %>%
     walk_progress( ~ {
+      try({
       unzip(.x, exdir = "extracted")
+      })
     })
   
   
