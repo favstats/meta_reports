@@ -43,7 +43,7 @@ py_install("playwright", pip = T)
 system("playwright install")
 
 # py_install("fcntl", pip = T)
-pw_init(use_xvfb = F)
+pw_init(use_xvfb = T)
 # Launch the browser
 
 browser_df <- browser_launch(
