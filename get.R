@@ -40,10 +40,10 @@ pacman::p_load(
 py_install("xvfbwrapper", pip = T)
 py_install("playwright", pip = T)
 
-system("playwright install")
+# system("playwright install")
 
 # py_install("fcntl", pip = T)
-pw_init(use_xvfb = T)
+pw_init(use_xvfb = F)
 # Launch the browser
 
 browser_df <- browser_launch(
@@ -164,14 +164,14 @@ countries <-
 #   filter(!is.na(country)) %>%
 #   glimpse
 
-days <-
+daysies <-
   tibble::tibble(day = lubridate::as_date(seq.int(
     lubridate::dmy("01-07-2019"), lubridate::today(), by = 1
   ))) %>%
   # days <- tibble::tibble(day = lubridate::as_date(seq.int(lubridate::dmy("15-07-2023"), lubridate::today(), by = 1))) #%>%
   head(-2)
 
-dt <- expand_grid(countries, days) %>%
+dt <- expand_grid(countries, daysies) %>%
   glimpse
 
 
@@ -253,14 +253,14 @@ latest_available_date <- dir("extracted") %>%
   sort(decreasing = T) %>% 
   str_split("_") %>% unlist %>% .[2]
 
-days <-
+daysies <-
   tibble::tibble(day = lubridate::as_date(seq.int(
     lubridate::dmy("01-07-2019"), lubridate::today(), by = 1
   ))) %>%
   # days <- tibble::tibble(day = lubridate::as_date(seq.int(lubridate::dmy("15-07-2023"), lubridate::today(), by = 1))) #%>%
   filter(day <= lubridate::as_date(latest_available_date))
 
-dt <- expand_grid(countries, days) %>%
+dt <- expand_grid(countries, daysies) %>%
   glimpse
 
 dt %>%
@@ -375,7 +375,7 @@ the_dat <-  dir("extracted", full.names = T, recursive = T) %>%
 # saveRDS(the_dat, "data/daily.rds")
 
 
-vroom::vroom_write(the_dat, "data/daily.rds")
+vroom::vroom_write(the_dat, "data/daily.csv")
 
 
 

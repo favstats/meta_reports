@@ -54,6 +54,8 @@ jobs:
           pacman::p_load(reticulate, fs, vroom, janitor, progress, tidyr, countrycode, dplyr, stringr, lubridate, purrr, glue, rvest, cli, digest)
           remotes::install_github("benjaminguinaudeau/playwrightr", force = T)
         shell: Rscript {0}
+      - name: Clear Playwright cache
+        run: playwright install
       - name: "Script - Run"
         run: Rscript 'get.R' 7
       - name: "Commit"
