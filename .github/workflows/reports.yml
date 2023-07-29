@@ -1,7 +1,7 @@
 name: "Get Reports"
 on:
   schedule:
-    - cron: '*/25 * * * *'
+    - cron: '*/15 * * * *'
   push:
     branches:
       - main
@@ -53,10 +53,12 @@ jobs:
           pacman::p_load(reticulate, fs, progress, tidyr, countrycode, dplyr, stringr, lubridate, purrr, glue, rvest, cli, digest)
           remotes::install_github("benjaminguinaudeau/playwrightr", force = T)
         shell: Rscript {0}
-      - name: "Script - Run"
-        run: Rscript 'get.R'
       - name: Pull Latest Changes
         run: git pull origin main
+      - name: "Script - Run"
+        run: Rscript 'get.R'
+
+
       - name: "Commit"
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
