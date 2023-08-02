@@ -17,6 +17,10 @@ walk_progress <- function(.x, .f, ...) {
 }
 
 
+daily_dat <- readRDS("data/daily.rds")
+
+
+
 # install.packages("pacman")
 pacman::p_load(
   reticulate,
@@ -261,6 +265,7 @@ daysies <-
   filter(day <= lubridate::as_date(latest_available_date))
 
 dt <- expand_grid(countries, daysies) %>%
+  filter(country %in% dplyr::count(daily_dat, cntry, sort = T)$cntry) %>% 
   glimpse
 
 try({
