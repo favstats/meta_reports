@@ -386,3 +386,12 @@ try({
   
   # vroom::vroom_write(the_dat, "data/daily.csv")
  }) 
+
+
+
+unlink("node_modules", recursive = T, force = T)
+unlink("out", recursive = T, force = T)
+
+dir() %>%
+  keep(~str_detect(.x, ".txt|package")) %>%
+  map(file.remove)
