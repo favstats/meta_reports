@@ -364,8 +364,11 @@ try({
     })
   
   
+  old_dat <- readRDS("data/daily.rds")
+  
   the_dat <-  dir("extracted", full.names = T, recursive = T) %>%
     keep( ~ str_detect(.x, "advert")) %>%
+    discard(~magrittr::is_in(.x, old_dat$path)) %>% 
     map_dfr(
       ~ {
         cntry_str <- str_split(.x, "_") %>% unlist %>% .[3]
