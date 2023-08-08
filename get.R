@@ -366,7 +366,7 @@ try({
   
   old_dat <- readRDS("data/daily.rds")
   
-  if (any(c("name_disclaimer_amount") %in% names(dialy))) {
+  if (any(c("name_disclaimer_amount") %in% names(old_dat))) {
     old_dat <- old_dat %>%
       filter(is.na(name_disclaimer_amount))  %>%
       janitor::remove_empty()
