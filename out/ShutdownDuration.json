@@ -1,1 +1,1 @@
-{"quit-application": 6, "profile-change-net-teardown": 1, "profile-change-teardown": 0, "profile-before-change": 7, "profile-before-change-qm": 0, "xpcom-will-shutdown": 1, "xpcom-shutdown": 0}
+{"quit-application": 3, "profile-change-net-teardown": 0, "profile-change-teardown": 0, "profile-before-change": 1, "profile-before-change-qm": 0, "xpcom-will-shutdown": 0, "xpcom-shutdown": 0}
