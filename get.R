@@ -186,7 +186,7 @@ dt %>%
   arrange(desc(day), country) %>%
   slice(1:7) %>%
   split(1:nrow(.)) %>% #bashR::simule_map(1)
-  walk_progress( ~ {
+  walk_progress(~ {
     file_name <-
       glue::glue("report/{.x$country}/{as.character(.x$day)}.zip")
     if (fs::file_exists(file_name))
@@ -246,15 +246,15 @@ dt %>%
 # dir("report/ES", full.names = T, recursive = T) %>% sort
 
 dir("report/NL", full.names = T, recursive = T) %>%
-  sort(decreasing = T) %>% 
-  .[1:7] %>% 
-  walk_progress( ~ {
+  sort(decreasing = T) %>%
+  .[1:7] %>%
+  walk_progress(~ {
     unzip(.x, exdir = "extracted")
   })
 
-latest_available_date <- dir("extracted") %>% 
-  keep(~str_detect(.x, "NL")) %>% 
-  sort(decreasing = T) %>% 
+latest_available_date <- dir("extracted") %>%
+  keep( ~ str_detect(.x, "NL")) %>%
+  sort(decreasing = T) %>%
   str_split("_") %>% unlist %>% .[2]
 
 daysies <-
@@ -265,18 +265,16 @@ daysies <-
   filter(day <= lubridate::as_date(latest_available_date))
 
 dt <- expand_grid(countries, daysies) %>%
-  filter(country %in% dplyr::count(daily_dat, cntry, sort = T)$cntry) %>% 
+  filter(country %in% dplyr::count(daily_dat, cntry, sort = T)$cntry) %>%
   glimpse
 
 try({
-  
-  
   dt %>%
     # arrange(day, country != "RU") %>%
     # filter(country == cntry) %>%
     arrange(desc(day), country) %>%
     split(1:nrow(.)) %>% #bashR::simule_map(1)
-    walk_progress( ~ {
+    walk_progress(~ {
       file_name <-
         glue::glue("report/{.x$country}/{as.character(.x$day)}.zip")
       if (fs::file_exists(file_name))
@@ -340,55 +338,77 @@ try({
     })
   
   
-}) 
-  # dir("report/ES")
-  #
- try({
+})
+# dir("report/ES")
+#
+try({
   dates_already_present <-
     dir("extracted", full.names = T, recursive = T) %>%
-    str_split("_") %>% map_chr(~ paste0(
+    str_split("_") %>% map_chr( ~ paste0(
       str_split(.x, "_") %>% unlist %>% .[3],
       "/",
       str_split(.x, "_") %>% unlist %>% .[2]
     )) %>%
     unique() %>%
-    discard( ~ str_detect(.x, "NA/NA")) %>%
+    discard(~ str_detect(.x, "NA/NA")) %>%
     na.omit() %>% as.character()
-
+  
   dir("report", full.names = T, recursive = T) %>%
-    discard( ~ magrittr::is_in(.x, paste0("report/", dates_already_present, ".zip"))) %>%
-    walk_progress( ~ {
+    discard(~ magrittr::is_in(.x, paste0(
+      "report/", dates_already_present, ".zip"
+    ))) %>%
+    walk_progress(~ {
       try({
-      unzip(.x, exdir = "extracted")
+        unzip(.x, exdir = "extracted")
       })
     })
   
   
   old_dat <- readRDS("data/daily.rds")
   
+  if (any(c("name_disclaimer_amount") %in% names(dialy))) {
+    old_dat <- old_dat %>%
+      filter(is.na(name_disclaimer_amount))  %>%
+      janitor::remove_empty()
+  } else {
+    old_dat <- old_dat
+  }
+  
+  
   the_dat <-  dir("extracted", full.names = T, recursive = T) %>%
-    keep( ~ str_detect(.x, "advert")) %>%
-    discard(~magrittr::is_in(.x, old_dat$path)) %>% 
-    map_dfr(
-      ~ {
-        cntry_str <- str_split(.x, "_") %>% unlist %>% .[3]
-        tframe <- str_split(.x, "_") %>% unlist %>% .[4]
-        
-        vroom::vroom(.x, show_col_types = F) %>%
-          janitor::clean_names()
-      } %>%
+    keep(~ str_detect(.x, "advert")) %>%
+    discard( ~ magrittr::is_in(.x, old_dat$path)) %>%
+    map_dfr(~ {
+      cntry_str <- str_split(.x, "_") %>% unlist %>% .[3]
+      tframe <- str_split(.x, "_") %>% unlist %>% .[4]
+      
+      vroom::vroom(.x, show_col_types = F) %>%
+        janitor::clean_names() %>%
         mutate(date = str_extract(.x, "\\d{4}-\\d{2}-\\d{2}")) %>%
         mutate_all(as.character) %>%
         mutate(path = .x) %>%
         mutate(tf = tframe) %>%
         mutate(cntry = cntry_str)
-    )
+    })
+  
+  
+  if (any(c("name_disclaimer_amount") %in% names(the_dat))) {
+    the_dat <- the_dat %>%
+      filter(is.na(name_disclaimer_amount))  %>%
+      janitor::remove_empty()
+  } else {
+    the_dat <- the_dat
+  }
+  
+  the_dat <- the_dat %>%
+    bind_rows(old_dat) %>%
+    distinct()
   
   saveRDS(the_dat, "data/daily.rds")
   
   
   # vroom::vroom_write(the_dat, "data/daily.csv")
- }) 
+})
 
 
 
@@ -396,5 +416,5 @@ unlink("node_modules", recursive = T, force = T)
 unlink("out", recursive = T, force = T)
 
 dir() %>%
-  keep(~str_detect(.x, ".txt")) %>%
+  keep( ~ str_detect(.x, ".txt")) %>%
   map(file.remove)
