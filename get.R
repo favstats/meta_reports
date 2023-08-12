@@ -363,32 +363,51 @@ try({
       })
     })
   
+    old_dat <- readRDS("data/daily.rds")
   
-  old_dat <- readRDS("data/daily.rds")
+  if (any(c("name_disclaimer_amount") %in% names(old_dat))) {
+    old_dat <- old_dat %>%
+      filter(is.na(name_disclaimer_amount))  %>%
+      janitor::remove_empty()
+  } else {
+    old_dat <- old_dat
+  }
+  
   
   the_dat <-  dir("extracted", full.names = T, recursive = T) %>%
-    keep( ~ str_detect(.x, "advert")) %>%
-    discard(~magrittr::is_in(.x, old_dat$path)) %>% 
-    map_dfr(
-      ~ {
-        cntry_str <- str_split(.x, "_") %>% unlist %>% .[3]
-        tframe <- str_split(.x, "_") %>% unlist %>% .[4]
-        
-        vroom::vroom(.x, show_col_types = F) %>%
-          janitor::clean_names()
-      } %>%
+    keep(~ str_detect(.x, "advert")) %>%
+    discard( ~ magrittr::is_in(.x, old_dat$path)) %>%
+    map_dfr(~ {
+      cntry_str <- str_split(.x, "_") %>% unlist %>% .[3]
+      tframe <- str_split(.x, "_") %>% unlist %>% .[4]
+      
+      vroom::vroom(.x, show_col_types = F) %>%
+        janitor::clean_names() %>%
         mutate(date = str_extract(.x, "\\d{4}-\\d{2}-\\d{2}")) %>%
         mutate_all(as.character) %>%
         mutate(path = .x) %>%
         mutate(tf = tframe) %>%
         mutate(cntry = cntry_str)
-    )
+    })
+  
+  
+  if (any(c("name_disclaimer_amount") %in% names(the_dat))) {
+    the_dat <- the_dat %>%
+      filter(is.na(name_disclaimer_amount))  %>%
+      janitor::remove_empty()
+  } else {
+    the_dat <- the_dat
+  }
+  
+  the_dat <- the_dat %>%
+    bind_rows(old_dat) %>%
+    distinct()
   
   saveRDS(the_dat, "data/daily.rds")
   
   
   # vroom::vroom_write(the_dat, "data/daily.csv")
- }) 
+})
 
 
 
@@ -396,5 +415,5 @@ unlink("node_modules", recursive = T, force = T)
 unlink("out", recursive = T, force = T)
 
 dir() %>%
-  keep(~str_detect(.x, ".txt")) %>%
+  keep( ~ str_detect(.x, ".txt")) %>%
   map(file.remove)
