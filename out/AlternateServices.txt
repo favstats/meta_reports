@@ -1,4 +1,0 @@
-https:static.xx.fbcdn.net:443:.:^partitionKey=%28https%2Cfacebook.com%29:3	0	19581	https:static.xx.fbcdn.net:443:static.xx.fbcdn.net:443::n:1691945075:h3:y:1691858672:n:^partitionKey=%28https%2Cfacebook.com%29:|n:y:
-https:scontent.xx.fbcdn.net:443:.:^partitionKey=%28https%2Cfacebook.com%29:3	0	19581	https:scontent.xx.fbcdn.net:443:scontent.xx.fbcdn.net:443::n:1691945075:h3:y:1691858672:n:^partitionKey=%28https%2Cfacebook.com%29:|n:y:
-https:scontent-iad3-2.xx.fbcdn.net:443:.:^partitionKey=%28https%2Cfacebook.com%29:3	0	19581	https:scontent-iad3-2.xx.fbcdn.net:443:scontent-iad3-2.xx.fbcdn.net:443::n:1691945074:h3:y:1691858672:n:^partitionKey=%28https%2Cfacebook.com%29:|n:y:
-https:www.facebook.com:443:.:^partitionKey=%28https%2Cfacebook.com%29:3	0	19581	https:www.facebook.com:443:www.facebook.com:443::n:1691945076:h3:y:1691858672:n:^partitionKey=%28https%2Cfacebook.com%29:|n:y:
