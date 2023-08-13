@@ -407,9 +407,10 @@ try({
 
    dir.create("daily")
    
-   the_dat %>%
-     group_split(cntry) %>%
-     walk_progress(~{saveRDS(.x, paste0("daily/",.x$cntry[1], ".rds")})
+the_dat %>%
+    group_by(cntry) %>%
+    group_split() %>%
+    walk_progress(~{saveRDS(.x, paste0("daily/",.x$cntry[1], ".rds"))})
   
   
   # vroom::vroom_write(the_dat, "data/daily.csv")
