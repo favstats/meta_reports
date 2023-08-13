@@ -16,6 +16,20 @@ walk_progress <- function(.x, .f, ...) {
   purrr::walk(.x, f, ...)
 }
 
+map_dfr_progress <- function(.x, .f, ...) {
+  .f <- purrr::as_mapper(.f, ...)
+  pb <- progress::progress_bar$new(
+    total = length(.x), 
+    format = " (:spin) [:bar] :percent | :current / :total | eta: :eta",
+    # format = " downloading [:bar] :percent eta: :eta",
+    force = TRUE)
+  
+  f <- function(...) {
+    pb$tick()
+    .f(...)
+  }
+  purrr::map_dfr(.x, f, ...)
+}
 
 daily_dat <- readRDS("data/daily.rds")
 
@@ -377,7 +391,7 @@ try({
   the_dat <-  dir("extracted", full.names = T, recursive = T) %>%
     keep(~ str_detect(.x, "advert")) %>%
     discard( ~ magrittr::is_in(.x, old_dat$path)) %>%
-    map_dfr(~ {
+    map_dfr_progress(~ {
       cntry_str <- str_split(.x, "_") %>% unlist %>% .[3]
       tframe <- str_split(.x, "_") %>% unlist %>% .[4]
       
