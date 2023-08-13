@@ -389,7 +389,7 @@ try({
         mutate(tf = tframe) %>%
         mutate(cntry = cntry_str)
     })
-  
+  print("################1")
   
   if (any(c("name_disclaimer_amount") %in% names(the_dat))) {
     the_dat <- the_dat %>%
@@ -398,29 +398,35 @@ try({
   } else {
     the_dat <- the_dat
   }
+  print("################2")
   
   the_dat <- the_dat %>%
     bind_rows(old_dat) %>%
     distinct()
   
   saveRDS(the_dat, "data/daily.rds")
-
+ print("################3")
+  
    dir.create("daily")
    
 the_dat %>%
     group_by(cntry) %>%
     group_split() %>%
     walk_progress(~{saveRDS(.x, paste0("daily/",.x$cntry[1], ".rds"))})
-  
-  
+ 
+  print("################4")
   # vroom::vroom_write(the_dat, "data/daily.csv")
 })
 
-
+print("################5")
 
 unlink("node_modules", recursive = T, force = T)
 unlink("out", recursive = T, force = T)
 
+print("################6")
+
 dir() %>%
   keep( ~ str_detect(.x, ".txt")) %>%
-  map(file.remove)
+  walk(file.remove)
+print("################7")
+
