@@ -391,13 +391,21 @@ try({
     })
   print("################1")
   
-  if (any(c("name_disclaimer_amount") %in% names(the_dat))) {
+if (any(c("name_disclaimer_amount") %in% names(the_dat))) {
+    print("##within1")
+    print(the_dat)
     the_dat <- the_dat %>%
-      filter(is.na(name_disclaimer_amount))  %>%
-      janitor::remove_empty()
-  } else {
+        filter(is.na(name_disclaimer_amount))  %>%
+        janitor::remove_empty()
+    print("##within2")
+    print(the_dat)
+} else {
+    print("##after1")
+    print(the_dat)
     the_dat <- the_dat
-  }
+    print("##after2")
+    print(the_dat)
+}
   print("################2")
   
   the_dat <- the_dat %>%
