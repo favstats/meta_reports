@@ -377,7 +377,7 @@ try({
       })
     })
   
-    old_dat <- readRDS("data/daily.rds")
+  old_dat <- dir("daily", full.names = T) %>% map_dfr_progress(readRDS)
   
   if (any(c("name_disclaimer_amount") %in% names(old_dat))) {
     old_dat <- old_dat %>%
@@ -426,11 +426,9 @@ if (any(c("name_disclaimer_amount") %in% names(the_dat))) {
     bind_rows(old_dat) %>%
     distinct()
   
-  saveRDS(the_dat, "data/daily.rds")
+ # saveRDS(the_dat, "data/daily.rds")
  print("################3")
-  
-   dir.create("daily")
-   
+
 the_dat %>%
     group_by(cntry) %>%
     group_split() %>%
