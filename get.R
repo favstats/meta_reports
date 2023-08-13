@@ -377,7 +377,9 @@ try({
       })
     })
   
-  old_dat <- dir("daily", full.names = T) %>% map_dfr_progress(readRDS)
+  old_dat <- dir("daily", full.names = T) %>% 
+     keep(~str_detect(.x, "rds")) %>% 
+     map_dfr_progress(readRDS)
   
   if (any(c("name_disclaimer_amount") %in% names(old_dat))) {
     old_dat <- old_dat %>%
