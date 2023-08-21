@@ -55,114 +55,114 @@ pacman::p_load(
 )
 
 # cntry <- "ES"
-py_install("xvfbwrapper", pip = T)
-py_install("playwright", pip = T)
-
-# system("playwright install")
-
-# py_install("fcntl", pip = T)
-pw_init(use_xvfb = T)
-# Launch the browser
-
-browser_df <- browser_launch(
-  headless = F,
-  browser = "firefox",
-  user_agent = NULL,
-  user_data_dir = "out"
-)
-
-# Create a new page
-
-# page_df <- new_page(browser_df)
-page_df <- browser_df %>%
-  glimpse
-
-
-pw_restart <- function() {
-  reticulate::py_run_string("p.stop()")
-  pw_init(use_xvfb = T)
-  reticulate::py_run_string("p = sync_playwright().start()")
-}
-
-
-
-on <- function(page_df, event, lambda_string) {
-  playwrightr:::py_run(glue('{page_df$page_id}.on("{event}", {lambda_string})'))
-  return(page_df)
-}
-off <- function(page_df, event, lambda_string) {
-  playwrightr:::py_run(glue(
-    '{page_df$page_id}.remove_listener("{event}", {lambda_string})'
-  ))
-  return(page_df)
-}
-
-execute_script <- function (page_df, script) {
-  playwrightr:::py_run(glue("d = {{page_df$page_id}}.evaluate('{{script}}')"))
-}
-
-page_df %>%
-  goto("https://www.facebook.com/ads/library/report")
-
-Sys.sleep(2)
-
-# page_df %>% screenshot("/data/res/facebook_add_reports/test.png")
-
-try({
-  page_df %>%
-    get_by_test_id("cookie-policy-manage-dialog-accept-button") %>%
-    slice(1) %>%
-    click() %>%
-    screenshot("/data/res/facebook_add_reports/test.png")
-})
-
-
-# Write post-data string to disk into tmp
-tmp_post_data_string <-
-  paste0(digest::digest("YOOYOOo"), ".txt")#  tempfile(fileext = ".txt")
-# page_df %>% on("request", glue::glue('lambda request: print(request.url)'))
-# page_df %>% on("request", glue::glue('lambda request: print(request.post_data) if (request.method == "POST" and "report/v2/download" in request.url) else None'))
-# page_df %>% on("request", glue::glue('lambda request: print(request.post_data) if (request.method == "POST" and "graphql" in request.url) else None'))
-page_df %>% on(
-  "request",
-  glue::glue(
-    'lambda request: open("{tmp_post_data_string}", "w").write(request.post_data) if (request.method == "POST" and "report/v2/download" in request.url) else None'
-  )
-)
-page_df %>% on(
-  "request",
-  glue::glue(
-    'lambda request: open("{tmp_post_data_string}", "w").write(request.post_data) if (request.method == "POST" and "graphql" in request.url) else None'
-  )
-)
-
-# Print Console
-# tmp_download_link <- tempfile()
-tmp_download_link <-
-  paste0(digest::digest("sdff"), ".txt")#  tempfile(fileext = ".txt")
-
-page_df %>% on("console",
-               "lambda msg: open('{tmp_download_link}', 'w').write(msg.text)")
-
-# First click to obtain the request post-body-data
-page_df %>%
-  get_by_text("Download report") %>%
-  slice(2) %>%
-  click()
-
-# Print download path
-tmp_download_path <-
-  paste0(digest::digest("sdsdfsdfdff"), ".txt")#
-page_df %>% on(
-  "download",
-  glue::glue(
-    'lambda download: open("{tmp_download_path}", "w").write(download.path())'
-  )
-)
-
-data_string <- readLines(tmp_post_data_string, warn = F) %>%
-  str_squish() %>%
-  glimpse
+# py_install("xvfbwrapper", pip = T)
+# py_install("playwright", pip = T)
+# 
+# # system("playwright install")
+# 
+# # py_install("fcntl", pip = T)
+# pw_init(use_xvfb = T)
+# # Launch the browser
+# 
+# browser_df <- browser_launch(
+#   headless = F,
+#   browser = "firefox",
+#   user_agent = NULL,
+#   user_data_dir = "out"
+# )
+# 
+# # Create a new page
+# 
+# # page_df <- new_page(browser_df)
+# page_df <- browser_df %>%
+#   glimpse
+# 
+# 
+# pw_restart <- function() {
+#   reticulate::py_run_string("p.stop()")
+#   pw_init(use_xvfb = T)
+#   reticulate::py_run_string("p = sync_playwright().start()")
+# }
+# 
+# 
+# 
+# on <- function(page_df, event, lambda_string) {
+#   playwrightr:::py_run(glue('{page_df$page_id}.on("{event}", {lambda_string})'))
+#   return(page_df)
+# }
+# off <- function(page_df, event, lambda_string) {
+#   playwrightr:::py_run(glue(
+#     '{page_df$page_id}.remove_listener("{event}", {lambda_string})'
+#   ))
+#   return(page_df)
+# }
+# 
+# execute_script <- function (page_df, script) {
+#   playwrightr:::py_run(glue("d = {{page_df$page_id}}.evaluate('{{script}}')"))
+# }
+# 
+# page_df %>%
+#   goto("https://www.facebook.com/ads/library/report")
+# 
+# Sys.sleep(2)
+# 
+# # page_df %>% screenshot("/data/res/facebook_add_reports/test.png")
+# 
+# try({
+#   page_df %>%
+#     get_by_test_id("cookie-policy-manage-dialog-accept-button") %>%
+#     slice(1) %>%
+#     click() %>%
+#     screenshot("/data/res/facebook_add_reports/test.png")
+# })
+# 
+# 
+# # Write post-data string to disk into tmp
+# tmp_post_data_string <-
+#   paste0(digest::digest("YOOYOOo"), ".txt")#  tempfile(fileext = ".txt")
+# # page_df %>% on("request", glue::glue('lambda request: print(request.url)'))
+# # page_df %>% on("request", glue::glue('lambda request: print(request.post_data) if (request.method == "POST" and "report/v2/download" in request.url) else None'))
+# # page_df %>% on("request", glue::glue('lambda request: print(request.post_data) if (request.method == "POST" and "graphql" in request.url) else None'))
+# page_df %>% on(
+#   "request",
+#   glue::glue(
+#     'lambda request: open("{tmp_post_data_string}", "w").write(request.post_data) if (request.method == "POST" and "report/v2/download" in request.url) else None'
+#   )
+# )
+# page_df %>% on(
+#   "request",
+#   glue::glue(
+#     'lambda request: open("{tmp_post_data_string}", "w").write(request.post_data) if (request.method == "POST" and "graphql" in request.url) else None'
+#   )
+# )
+# 
+# # Print Console
+# # tmp_download_link <- tempfile()
+# tmp_download_link <-
+#   paste0(digest::digest("sdff"), ".txt")#  tempfile(fileext = ".txt")
+# 
+# page_df %>% on("console",
+#                "lambda msg: open('{tmp_download_link}', 'w').write(msg.text)")
+# 
+# # First click to obtain the request post-body-data
+# page_df %>%
+#   get_by_text("Download report") %>%
+#   slice(2) %>%
+#   click()
+# 
+# # Print download path
+# tmp_download_path <-
+#   paste0(digest::digest("sdsdfsdfdff"), ".txt")#
+# page_df %>% on(
+#   "download",
+#   glue::glue(
+#     'lambda download: open("{tmp_download_path}", "w").write(download.path())'
+#   )
+# )
+# 
+# data_string <- readLines(tmp_post_data_string, warn = F) %>%
+#   str_squish() %>%
+#   glimpse
 
 
 # countries <- tibble::tibble(country = c("NL", "DE", "CA", "FR", "US"))
@@ -355,9 +355,9 @@ try({
   
   
 }) 
-  # dir("report/ES")
-  #
- try({
+# dir("report/ES")
+#
+try({
   dates_already_present <-
     dir("extracted", full.names = T, recursive = T) %>%
     str_split("_") %>% map_chr(~ paste0(
@@ -368,18 +368,18 @@ try({
     unique() %>%
     discard( ~ str_detect(.x, "NA/NA")) %>%
     na.omit() %>% as.character()
-
+  
   dir("report", full.names = T, recursive = T) %>%
     discard( ~ magrittr::is_in(.x, paste0("report/", dates_already_present, ".zip"))) %>%
     walk_progress( ~ {
       try({
-      unzip(.x, exdir = "extracted")
+        unzip(.x, exdir = "extracted")
       })
     })
   
   old_dat <- dir("daily", full.names = T) %>% 
-     keep(~str_detect(.x, "rds")) %>% 
-     map_dfr_progress(readRDS)
+    keep(~str_detect(.x, "rds")) %>% 
+    map_dfr_progress(readRDS)
   
   if (any(c("name_disclaimer_amount") %in% names(old_dat))) {
     old_dat <- old_dat %>%
@@ -407,35 +407,35 @@ try({
     })
   print("################1")
   
-if (any(c("name_disclaimer_amount") %in% names(the_dat))) {
+  if (any(c("name_disclaimer_amount") %in% names(the_dat))) {
     print("##within1")
     print(the_dat)
     the_dat <- the_dat %>%
-        filter(is.na(name_disclaimer_amount))  %>%
-        janitor::remove_empty()
+      filter(is.na(name_disclaimer_amount))  %>%
+      janitor::remove_empty()
     print("##within2")
     print(the_dat)
-} else {
+  } else {
     print("##after1")
     print(the_dat)
     the_dat <- the_dat
     print("##after2")
     print(the_dat)
-}
+  }
   print("################2")
   
   the_dat <- the_dat %>%
     bind_rows(old_dat) %>%
     distinct()
   
- # saveRDS(the_dat, "data/daily.rds")
- print("################3")
-
-the_dat %>%
+  # saveRDS(the_dat, "data/daily.rds")
+  print("################3")
+  
+  the_dat %>%
     group_by(cntry) %>%
     group_split() %>%
     walk_progress(~{saveRDS(.x, paste0("daily/",.x$cntry[1], ".rds"))})
- 
+  
   print("################4")
   # vroom::vroom_write(the_dat, "data/daily.csv")
 })
