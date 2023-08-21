@@ -181,180 +181,180 @@ countries <-
 # countries <- tibble::tibble(country = readr::read_rds("data/countries.rds")) %>%
 #   filter(!is.na(country)) %>%
 #   glimpse
-
-daysies <-
-  tibble::tibble(day = lubridate::as_date(seq.int(
-    lubridate::dmy("01-07-2019"), lubridate::today(), by = 1
-  ))) %>%
-  # days <- tibble::tibble(day = lubridate::as_date(seq.int(lubridate::dmy("15-07-2023"), lubridate::today(), by = 1))) #%>%
-  head(-2)
-
-dt <- expand_grid(countries, daysies) %>%
-  glimpse
-
-
-
-dt %>%
-  # arrange(day, country != "RU") %>%
-  filter(country == "NL") %>%
-  arrange(desc(day), country) %>%
-  slice(1:7) %>%
-  split(1:nrow(.)) %>% #bashR::simule_map(1)
-  walk_progress( ~ {
-    file_name <-
-      glue::glue("report/{.x$country}/{as.character(.x$day)}.zip")
-    if (fs::file_exists(file_name))
-      return()
-    
-    cli::cli_alert_info(glue::glue("{.x$country} - {.x$day}"))
-    
-    path_dir <- fs::path_dir(file_name)
-    if (!fs::dir_exists(path_dir))
-      fs::dir_create(path_dir)
-    
-    time_preset <- "yesterday"
-    
-    js_code <-
-      paste0(
-        'fetch("https://www.facebook.com/ads/library/report/v2/download/?report_ds=',
-        as.character(.x$day),
-        '&country=',
-        .x$country,
-        '&time_preset=',
-        time_preset,
-        '", {"headers": {"accept": "*/*", "content-type": "application/x-www-form-urlencoded"}, "body": "',
-        data_string,
-        '", "method": "POST", "mode": "cors", "credentials": "include" }).then(resp => resp.text()).then(data => console.log(data));'
-      )
-    
-    page_df %>% execute_script(js_code)
-    Sys.sleep(.1)
-    
-    download_url <- readLines(tmp_download_link, warn = F) %>%
-      str_extract("\"https.*?\"") %>%
-      str_remove_all("(^\")|(\"$)") %>%
-      str_remove_all("\\\\") %>%
-      glimpse
-    
-    if (is.na(download_url)) {
-      if (!(.x$day %in% lubridate::as_date((lubridate::today() - lubridate::days(10)):lubridate::today()
-      ))) {
-        write(list(), file_name)
-      }
-    } else if (str_detect(download_url, "facebook.com/help/contact/")) {
-      cli::cli_alert_danger("Blocked")
-      Sys.sleep(10)
-      return("Blocked")
-    } else {
-      download.file(download_url,
-                    file_name,
-                    quiet = T,
-                    mode = "wb")
-    }
-    
-    
-    
-    Sys.sleep(runif(1, 0, .3))
-  })
-
-# dir("report/ES", full.names = T, recursive = T) %>% sort
-
-dir("report/NL", full.names = T, recursive = T) %>%
-  sort(decreasing = T) %>% 
-  .[1:7] %>% 
-  walk_progress( ~ {
-    unzip(.x, exdir = "extracted")
-  })
-
-latest_available_date <- dir("extracted") %>% 
-  keep(~str_detect(.x, "NL")) %>% 
-  sort(decreasing = T) %>% 
-  str_split("_") %>% unlist %>% .[2]
-
-daysies <-
-  tibble::tibble(day = lubridate::as_date(seq.int(
-    lubridate::dmy("01-07-2019"), lubridate::today(), by = 1
-  ))) %>%
-  # days <- tibble::tibble(day = lubridate::as_date(seq.int(lubridate::dmy("15-07-2023"), lubridate::today(), by = 1))) #%>%
-  filter(day <= lubridate::as_date(latest_available_date))
-
-dt <- expand_grid(countries, daysies) %>%
-  filter(country %in% dplyr::count(daily_dat, cntry, sort = T)$cntry) %>% 
-  glimpse
-
-try({
-  
-  
-  dt %>%
-    # arrange(day, country != "RU") %>%
-    # filter(country == cntry) %>%
-    arrange(desc(day), country) %>%
-    split(1:nrow(.)) %>% #bashR::simule_map(1)
-    walk_progress( ~ {
-      file_name <-
-        glue::glue("report/{.x$country}/{as.character(.x$day)}.zip")
-      if (fs::file_exists(file_name))
-        return()
-      
-      cli::cli_alert_info(glue::glue("{.x$country} - {.x$day}"))
-      
-      path_dir <- fs::path_dir(file_name)
-      if (!fs::dir_exists(path_dir))
-        fs::dir_create(path_dir)
-      
-      # .x <- list(day = "2021-12-17", country = "NL")
-      # .x <- list(day = "2021-12-16", country = "NL")
-      # .x <- list(day = "2021-01-17", country = "NL")
-      # time_preset <- "lifelong"
-      time_preset <- "yesterday"
-      # time_preset <- "last_90_days"
-      # time_preset <- "last_365_days"
-      
-      js_code <-
-        paste0(
-          'fetch("https://www.facebook.com/ads/library/report/v2/download/?report_ds=',
-          as.character(.x$day),
-          '&country=',
-          .x$country,
-          '&time_preset=',
-          time_preset,
-          '", {"headers": {"accept": "*/*", "content-type": "application/x-www-form-urlencoded"}, "body": "',
-          data_string,
-          '", "method": "POST", "mode": "cors", "credentials": "include" }).then(resp => resp.text()).then(data => console.log(data));'
-        )
-      
-      page_df %>% execute_script(js_code)
-      Sys.sleep(.1)
-      
-      download_url <- readLines(tmp_download_link, warn = F) %>%
-        str_extract("\"https.*?\"") %>%
-        str_remove_all("(^\")|(\"$)") %>%
-        str_remove_all("\\\\") %>%
-        glimpse
-      
-      if (is.na(download_url)) {
-        if (!(.x$day %in% lubridate::as_date((lubridate::today() - lubridate::days(10)):lubridate::today()
-        ))) {
-          write(list(), file_name)
-        }
-      } else if (str_detect(download_url, "facebook.com/help/contact/")) {
-        cli::cli_alert_danger("Blocked")
-        Sys.sleep(10)
-        stop("Blocked")
-      } else {
-        download.file(download_url,
-                      file_name,
-                      quiet = T,
-                      mode = "wb")
-      }
-      
-      
-      
-      Sys.sleep(runif(1, 0, .3))
-    })
-  
-  
-}) 
+# 
+# daysies <-
+#   tibble::tibble(day = lubridate::as_date(seq.int(
+#     lubridate::dmy("01-07-2019"), lubridate::today(), by = 1
+#   ))) %>%
+#   # days <- tibble::tibble(day = lubridate::as_date(seq.int(lubridate::dmy("15-07-2023"), lubridate::today(), by = 1))) #%>%
+#   head(-2)
+# 
+# dt <- expand_grid(countries, daysies) %>%
+#   glimpse
+# 
+# 
+# 
+# dt %>%
+#   # arrange(day, country != "RU") %>%
+#   filter(country == "NL") %>%
+#   arrange(desc(day), country) %>%
+#   slice(1:7) %>%
+#   split(1:nrow(.)) %>% #bashR::simule_map(1)
+#   walk_progress( ~ {
+#     file_name <-
+#       glue::glue("report/{.x$country}/{as.character(.x$day)}.zip")
+#     if (fs::file_exists(file_name))
+#       return()
+#     
+#     cli::cli_alert_info(glue::glue("{.x$country} - {.x$day}"))
+#     
+#     path_dir <- fs::path_dir(file_name)
+#     if (!fs::dir_exists(path_dir))
+#       fs::dir_create(path_dir)
+#     
+#     time_preset <- "yesterday"
+#     
+#     js_code <-
+#       paste0(
+#         'fetch("https://www.facebook.com/ads/library/report/v2/download/?report_ds=',
+#         as.character(.x$day),
+#         '&country=',
+#         .x$country,
+#         '&time_preset=',
+#         time_preset,
+#         '", {"headers": {"accept": "*/*", "content-type": "application/x-www-form-urlencoded"}, "body": "',
+#         data_string,
+#         '", "method": "POST", "mode": "cors", "credentials": "include" }).then(resp => resp.text()).then(data => console.log(data));'
+#       )
+#     
+#     page_df %>% execute_script(js_code)
+#     Sys.sleep(.1)
+#     
+#     download_url <- readLines(tmp_download_link, warn = F) %>%
+#       str_extract("\"https.*?\"") %>%
+#       str_remove_all("(^\")|(\"$)") %>%
+#       str_remove_all("\\\\") %>%
+#       glimpse
+#     
+#     if (is.na(download_url)) {
+#       if (!(.x$day %in% lubridate::as_date((lubridate::today() - lubridate::days(10)):lubridate::today()
+#       ))) {
+#         write(list(), file_name)
+#       }
+#     } else if (str_detect(download_url, "facebook.com/help/contact/")) {
+#       cli::cli_alert_danger("Blocked")
+#       Sys.sleep(10)
+#       return("Blocked")
+#     } else {
+#       download.file(download_url,
+#                     file_name,
+#                     quiet = T,
+#                     mode = "wb")
+#     }
+#     
+#     
+#     
+#     Sys.sleep(runif(1, 0, .3))
+#   })
+# 
+# # dir("report/ES", full.names = T, recursive = T) %>% sort
+# 
+# dir("report/NL", full.names = T, recursive = T) %>%
+#   sort(decreasing = T) %>% 
+#   .[1:7] %>% 
+#   walk_progress( ~ {
+#     unzip(.x, exdir = "extracted")
+#   })
+# 
+# latest_available_date <- dir("extracted") %>% 
+#   keep(~str_detect(.x, "NL")) %>% 
+#   sort(decreasing = T) %>% 
+#   str_split("_") %>% unlist %>% .[2]
+# 
+# daysies <-
+#   tibble::tibble(day = lubridate::as_date(seq.int(
+#     lubridate::dmy("01-07-2019"), lubridate::today(), by = 1
+#   ))) %>%
+#   # days <- tibble::tibble(day = lubridate::as_date(seq.int(lubridate::dmy("15-07-2023"), lubridate::today(), by = 1))) #%>%
+#   filter(day <= lubridate::as_date(latest_available_date))
+# 
+# dt <- expand_grid(countries, daysies) %>%
+#   filter(country %in% dplyr::count(daily_dat, cntry, sort = T)$cntry) %>% 
+#   glimpse
+# 
+# try({
+#   
+#   
+#   dt %>%
+#     # arrange(day, country != "RU") %>%
+#     # filter(country == cntry) %>%
+#     arrange(desc(day), country) %>%
+#     split(1:nrow(.)) %>% #bashR::simule_map(1)
+#     walk_progress( ~ {
+#       file_name <-
+#         glue::glue("report/{.x$country}/{as.character(.x$day)}.zip")
+#       if (fs::file_exists(file_name))
+#         return()
+#       
+#       cli::cli_alert_info(glue::glue("{.x$country} - {.x$day}"))
+#       
+#       path_dir <- fs::path_dir(file_name)
+#       if (!fs::dir_exists(path_dir))
+#         fs::dir_create(path_dir)
+#       
+#       # .x <- list(day = "2021-12-17", country = "NL")
+#       # .x <- list(day = "2021-12-16", country = "NL")
+#       # .x <- list(day = "2021-01-17", country = "NL")
+#       # time_preset <- "lifelong"
+#       time_preset <- "yesterday"
+#       # time_preset <- "last_90_days"
+#       # time_preset <- "last_365_days"
+#       
+#       js_code <-
+#         paste0(
+#           'fetch("https://www.facebook.com/ads/library/report/v2/download/?report_ds=',
+#           as.character(.x$day),
+#           '&country=',
+#           .x$country,
+#           '&time_preset=',
+#           time_preset,
+#           '", {"headers": {"accept": "*/*", "content-type": "application/x-www-form-urlencoded"}, "body": "',
+#           data_string,
+#           '", "method": "POST", "mode": "cors", "credentials": "include" }).then(resp => resp.text()).then(data => console.log(data));'
+#         )
+#       
+#       page_df %>% execute_script(js_code)
+#       Sys.sleep(.1)
+#       
+#       download_url <- readLines(tmp_download_link, warn = F) %>%
+#         str_extract("\"https.*?\"") %>%
+#         str_remove_all("(^\")|(\"$)") %>%
+#         str_remove_all("\\\\") %>%
+#         glimpse
+#       
+#       if (is.na(download_url)) {
+#         if (!(.x$day %in% lubridate::as_date((lubridate::today() - lubridate::days(10)):lubridate::today()
+#         ))) {
+#           write(list(), file_name)
+#         }
+#       } else if (str_detect(download_url, "facebook.com/help/contact/")) {
+#         cli::cli_alert_danger("Blocked")
+#         Sys.sleep(10)
+#         stop("Blocked")
+#       } else {
+#         download.file(download_url,
+#                       file_name,
+#                       quiet = T,
+#                       mode = "wb")
+#       }
+#       
+#       
+#       
+#       Sys.sleep(runif(1, 0, .3))
+#     })
+#   
+#   
+# }) 
 # dir("report/ES")
 #
 try({
